@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parâmetros de Qualidade da Água - CONAMA 357/2005</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #2196F3;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        th {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th:first-child {
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 1.1em;
+        }
+
+        td:first-child {
+            text-align: left;
+            padding-left: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.2em;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #e3f2fd;
+            transition: background-color 0.3s ease;
+        }
+
+        .input-field {
+            width: 70px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1em;
+        }
+
+        /* Campos de valor medido com largura maior */
+        /* Coluna 5: "Valor Medido do Parâmetro" */
+        .input-field[step="0.01"] {
+            width: 100px;
+        }
+
+        /* Alternativa usando seletor mais específico */
+        /* Garante que apenas os campos da coluna 5 tenham largura maior */
+        td:nth-child(5) .input-field {
+            width: 100px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .calculated {
+            background-color: #e8f5e8;
+            font-weight: 500;
+            color: #27ae60;
+            font-size: 1.1em;
+        }
+
+        .reference {
+            background-color: #fff3cd;
+            color: #856404;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        .legend {
+            background: #f8f9fa;
+            padding: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .legend h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            th, td {
+                padding: 8px 5px;
+                font-size: 1em;
+            }
+            
+            .input-field {
+                width: 60px;
+                font-size: 0.9em;
+            }
+            
+            .input-field[step="0.01"] {
+                width: 80px;
+            }
+            
+            td:nth-child(5) .input-field {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Estimativa de Índice de Estado Trófico (IET) da Amazônia<br>Modelo desenvolvido por Costa (2025) </h1>
+            <p>Considera Resolução CONAMA 357/2005</p>
+            <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button onclick="testarCalculos()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">🧮 Testar Cálculos</button>
+                <button onclick="inserirValoresExemplo()" style="padding: 10px 20px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">📝 Inserir Exemplos</button>
+                <button onclick="validarTodosPesos()" style="padding: 10px 20px; background: #FF9800; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">✅ Validar Pesos</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parâmetro</th>
+                        <th>Valor de Referência<br>CONAMA 357/2005</th>
+                        <th>Peso Atribuído<br>pelo Usuário (1-5)</th>
+                        <th>Peso Relativo<br>Calculado</th>
+                        <th>Valor Medido<br>do Parâmetro</th>
+                        <th>Valor do QI</th>
+                        <th>Valor do SI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Transparência</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Temperatura</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>pH</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>eH</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>OD</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Turbidez</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>TDS</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Condutividade</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Cloreto</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Nitrato</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Clorofila</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Fosfato</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Cor Aparente</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Cor Verdadeira</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>DQO</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>NH4+</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Ag</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Ba</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Be</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Ca</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Cd</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Co</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Cr</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Cu</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Fe</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>K</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Mg</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Mn</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Na</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Ni</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Pb</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Sn</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Sr</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Ti</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>V</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                    <tr>
+                        <td>Zn</td>
+                        <td class="reference"></td>
+                        <td><input type="number" class="input-field" min="1" max="5" placeholder="1-5"></td>
+                        <td class="calculated">-</td>
+                        <td><input type="number" class="input-field" step="0.01" placeholder="Valor"></td>
+                        <td class="calculated">-</td>
+                        <td class="calculated">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="legend">
+            <h3>Legenda</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #fff3cd;"></div>
+                    <span>Valores de referência CONAMA 357/2005</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #e8f5e8;"></div>
+                    <span>Valores calculados automaticamente</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #f8f9fa;"></div>
+                    <span>Campos de entrada do usuário</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #fff3cd;"></div>
+                    <span>Pesos devem estar entre 1 e 5</span>
+                </div>
+            </div>
+                        <div style="margin-top: 20px; padding: 15px; background-color: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+                <h4 style="margin: 0 0 10px 0; color: #1976d2;">📊 Fórmulas de Cálculo</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h5 style="margin: 0 0 8px 0; color: #1976d2;">QI (Índice de Qualidade)</h5>
+                        <p style="margin: 0; color: #424242; font-size: 1em;">
+                            <strong>QI = (Valor Medido ÷ Valor de Referência) × 10</strong><br>
+                            <em>Exemplo: pH medido = 8.5, Referência = 7 → QI = (8.5 ÷ 7) × 10 = 12.14</em>
+                        </p>
+                    </div>
+                    <div>
+                        <h5 style="margin: 0 0 8px 0; color: #1976d2;">SI (Índice de Significância)</h5>
+                        <p style="margin: 0; color: #424242; font-size: 1em;">
+                            <strong>SI = QI × Peso Atribuído pelo Usuário</strong><br>
+                            <em>Exemplo: QI = 12.14, Peso = 3 → SI = 12.14 × 3 = 36.42</em>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 20px; padding: 15px; background-color: #e8f5e8; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                <h4 style="margin: 0 0 10px 0; color: #2e7d32;">🌊 Cálculo do IET (Índice de Estado Trófico)</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h5 style="margin: 0 0 8px 0; color: #2e7d32;">Fórmula do IET</h5>
+                        <p style="margin: 0; color: #424242; font-size: 1em;">
+                            <strong>IET = Σ(SI) = SI₁ + SI₂ + SI₃ + ... + SIₙ</strong><br>
+                            <em>Somatório de todos os valores de SI calculados</em>
+                        </p>
+                    </div>
+                    <div>
+                        <h5 style="margin: 0 0 8px 0; color: #2e7d32;">Classificação do IET</h5>
+                        <div style="font-size: 0.9em; color: #424242;">
+                            <div style="margin-bottom: 5px;"><span style="color: #4CAF50;">●</span> <strong>Ultraoligotrófico:</strong> IET < 25</div>
+                            <div style="margin-bottom: 5px;"><span style="color: #8BC34A;">●</span> <strong>Oligotrófico:</strong> 25 ≤ IET ≤ 50</div>
+                            <div style="margin-bottom: 5px;"><span style="color: #FFC107;">●</span> <strong>Mesotrófico:</strong> 50 < IET ≤ 75</div>
+                            <div style="margin-bottom: 5px;"><span style="color: #FF9800;">●</span> <strong>Eutrófico:</strong> 75 < IET ≤ 100</div>
+                            <div style="margin-bottom: 5px;"><span style="color: #F44336;">●</span> <strong>Hipereutrófico:</strong> IET > 100</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variável global com valores de referência CONAMA 357/2005
+        const valoresReferenciaCONAMA = {
+            'Transparência': '-',
+            'Temperatura': '-',
+            'pH': '7',
+            'eH': '-',
+            'OD': '>0,5 mg/L',
+            'Turbidez': '100 UNT',
+            'TDS': '500 mg/L',
+            'Condutividade': '-',
+            'Cloreto': '250 mg/L',
+            'Nitrato': '10 mg/L',
+            'Clorofila': '30 mg/L',
+            'Fosfato': '-',
+            'Cor Aparente': '-',
+            'Cor Verdadeira': '75 mg pt/L',
+            'DQO': '-',
+            'NH4+': '-',
+            'Ag': '0,01 mg/L',
+            'Ba': '0,7 mg/L',
+            'Be': '0,04 mg/L',
+            'Ca': '-',
+            'Cd': '0,001 mg/L',
+            'Co': '0,05 mg/L',
+            'Cr': '0,05 mg/L',
+            'Cu': '0,009 mg/L',
+            'Fe': '0,3 mg/L',
+            'K': '-',
+            'Mg': '-',
+            'Mn': '0,1 mg/L',
+            'Na': '-',
+            'Ni': '0,025 mg/L',
+            'Pb': '0,01 mg/L',
+            'Sn': '-',
+            'Sr': '-',
+            'Ti': '-',
+            'V': '0,1 mg/L',
+            'Zn': '0,18 mg/L'
+        };
+
+        // Variável global com pesos atribuídos pelo usuário
+        const pesosAtribuidos = {
+            'Transparência': 4,
+            'Temperatura': 4,
+            'pH': 3,
+            'eH': 3,
+            'OD': 4,
+            'Turbidez': 5,
+            'TDS': 5,
+            'Condutividade': 3,
+            'Cloreto': 2,
+            'Nitrato': 2,
+            'Clorofila': 4,
+            'Fosfato': 4,
+            'Cor Aparente': 4,
+            'Cor Verdadeira': 3,
+            'DQO': 2,
+            'NH4+': 3,
+            'Ag': 3,
+            'Ba': 3,
+            'Be': 3,
+            'Ca': 2,
+            'Cd': 1,
+            'Co': 1,
+            'Cr': 1,
+            'Cu': 1,
+            'Fe': 4,
+            'K': 3,
+            'Mg': 3,
+            'Mn': 1,
+            'Na': 5,
+            'Ni': 1,
+            'Pb': 1,
+            'Sn': 3,
+            'Sr': 1,
+            'Ti': 1,
+            'V': 1,
+            'Zn': 3
+        };
+
+        // Função para calcular peso relativo e QI
+        function calculateRelativeWeight() {
+            console.log('Iniciando cálculo de peso relativo e QI...');
+            
+            const rows = document.querySelectorAll('tbody tr');
+            console.log('Linhas encontradas:', rows.length);
+            
+            let totalWeight = 0;
+            
+            // Calcular soma total dos pesos
+            rows.forEach((row, index) => {
+                const pesoInput = row.querySelector('td:nth-child(3) input[type="number"]');
+                if (pesoInput && pesoInput.value !== '') {
+                    const peso = parseFloat(pesoInput.value);
+                    totalWeight += peso;
+                    console.log(`Linha ${index + 1}: peso = ${peso}`);
+                }
+            });
+            
+            console.log('Peso total:', totalWeight);
+            
+            // Calcular peso relativo e QI para cada linha
+            rows.forEach((row, index) => {
+                const pesoInput = row.querySelector('td:nth-child(3) input[type="number"]');
+                const relativeWeightCell = row.querySelector('td:nth-child(4)');
+                const qiCell = row.querySelector('td:nth-child(6)');
+                
+                if (pesoInput && pesoInput.value !== '') {
+                    const weight = parseFloat(pesoInput.value);
+                    const relativeWeight = totalWeight > 0 ? (weight / totalWeight * 100).toFixed(2) : '0.00';
+                    relativeWeightCell.textContent = relativeWeight + '%';
+                    
+                    // Calcular QI
+                    const valorMedidoInput = row.querySelector('td:nth-child(5) input[type="number"]');
+                    const valorMedido = valorMedidoInput ? parseFloat(valorMedidoInput.value) : null;
+                    const parametro = row.querySelector('td:first-child').textContent.trim();
+                    const valorReferencia = valoresReferenciaCONAMA[parametro];
+                    
+                    const qi = calcularQI(valorMedido, valorReferencia);
+                    qiCell.textContent = qi;
+                    
+                    // Calcular SI
+                    const siCell = row.querySelector('td:nth-child(7)');
+                    const si = calcularSI(qi, weight);
+                    siCell.textContent = si;
+                    
+                    console.log(`Linha ${index + 1} - ${parametro}: peso=${weight}, relativo=${relativeWeight}%, QI=${qi}, SI=${si}`);
+                }
+            });
+            
+            console.log('Cálculo concluído!');
+            
+            // Calcular e exibir IET
+            atualizarExibicaoIET();
+        }
+
+        // Função para extrair valor numérico da string de referência
+        function extrairValorNumerico(valorReferencia) {
+            // Remove caracteres especiais e extrai apenas o número
+            const match = valorReferencia.match(/[\d,]+/);
+            if (match) {
+                // Substitui vírgula por ponto para conversão correta
+                return parseFloat(match[0].replace(',', '.'));
+            }
+            return 0;
+        }
+
+        // Função para calcular QI individual
+        function calcularQI(valorMedido, valorReferencia) {
+            if (!valorMedido || !valorReferencia || valorReferencia === '-') {
+                return '-';
+            }
+            
+            const valorRefNumerico = extrairValorNumerico(valorReferencia);
+            if (valorRefNumerico > 0) {
+                const qi = (valorMedido / valorRefNumerico) * 10;
+                return qi.toFixed(2);
+            }
+            return '-';
+        }
+
+        // Função para calcular SI individual
+        function calcularSI(qi, pesoAtribuido) {
+            if (qi === '-' || !pesoAtribuido) {
+                return '-';
+            }
+            
+            const qiNumerico = parseFloat(qi);
+            if (!isNaN(qiNumerico) && pesoAtribuido > 0) {
+                const si = qiNumerico * pesoAtribuido / 100.0;
+                return si.toFixed(2);
+            }
+            return '-';
+        }
+
+        // Função para calcular IET (Índice de Estado Trófico)
+        function calcularIET() {
+            const rows = document.querySelectorAll('tbody tr');
+            let somatorioSI = 0;
+            let parametrosComSI = 0;
+            
+            rows.forEach(row => {
+                const siCell = row.querySelector('td:nth-child(7)');
+                const si = siCell.textContent.trim();
+                
+                if (si !== '-' && si !== '') {
+                    const siNumerico = parseFloat(si);
+                    if (!isNaN(siNumerico)) {
+                        somatorioSI += siNumerico;
+                        parametrosComSI++;
+                    }
+                }
+            });
+            
+            return {
+                iet: somatorioSI.toFixed(2),
+                parametrosComSI: parametrosComSI,
+                totalParametros: rows.length
+            };
+        }
+
+        // Função para determinar a faixa do IET
+        function determinarFaixaIET(iet) {
+            const valor = parseFloat(iet);
+            
+            if (isNaN(valor)) {
+                return { faixa: 'Não calculável', cor: '#999999' };
+            }
+            
+            if (valor < 25) {
+                return { faixa: 'Ultraoligotrófico', cor: '#4CAF50' };
+            } else if (valor <= 50) {
+                return { faixa: 'Oligotrófico', cor: '#8BC34A' };
+            } else if (valor <= 75) {
+                return { faixa: 'Mesotrófico', cor: '#FFC107' };
+            } else if (valor <= 100) {
+                return { faixa: 'Eutrófico', cor: '#FF9800' };
+            } else {
+                return { faixa: 'Hipereutrófico', cor: '#F44336' };
+            }
+        }
+
+        // Função para atualizar a exibição do IET
+        function atualizarExibicaoIET() {
+            const resultadoIET = calcularIET();
+            const faixaInfo = determinarFaixaIET(resultadoIET.iet);
+            
+            // Atualizar ou criar o elemento de exibição do IET
+            let ietContainer = document.getElementById('iet-container');
+            if (!ietContainer) {
+                ietContainer = document.createElement('div');
+                ietContainer.id = 'iet-container';
+                ietContainer.style.cssText = `
+                    margin-top: 20px;
+                    padding: 20px;
+                    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                    border-radius: 10px;
+                    border: 2px solid #dee2e6;
+                    text-align: center;
+                `;
+                
+                // Inserir após a legenda
+                const legend = document.querySelector('.legend');
+                if (legend) {
+                    legend.parentNode.insertBefore(ietContainer, legend.nextSibling);
+                }
+            }
+            
+            ietContainer.innerHTML = `
+                <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 1.5em;">🌊 Índice de Estado Trófico (IET) Estimado</h3>
+                <div style="display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5em; font-weight: bold; color: ${faixaInfo.cor}; margin-bottom: 5px;">
+                            ${resultadoIET.iet}
+                        </div>
+                        <div style="font-size: 1.1em; color: #6c757d; margin-bottom: 10px;">
+                            Valor do IET
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.8em; font-weight: bold; color: ${faixaInfo.cor}; margin-bottom: 5px;">
+                            ${faixaInfo.faixa}
+                        </div>
+                        <div style="font-size: 1.1em; color: #6c757d;">
+                            Classificação
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; font-size: 0.9em; color: #6c757d;">
+                    Baseado em ${resultadoIET.parametrosComSI} de ${resultadoIET.totalParametros} parâmetros com valores válidos
+                </div>
+            `;
+            
+            console.log(`IET calculado: ${resultadoIET.iet} - ${faixaInfo.faixa}`);
+        }
+
+        // Função para validar peso atribuído pelo usuário
+        function validarPesoAtribuido(input) {
+            const valorOriginal = input.value;
+            const valor = parseFloat(valorOriginal);
+            const parametro = input.closest('tr').querySelector('td:first-child').textContent.trim();
+            
+            // Verificar se o valor está vazio
+            if (valorOriginal.trim() === '') {
+                alert(`⚠️ AVISO: O peso atribuído para "${parametro}" não pode estar vazio.\n\nValor corrigido automaticamente para: 1`);
+                input.value = '1';
+                return false;
+            }
+            
+            // Verificar se é um número válido
+            if (isNaN(valor)) {
+                alert(`❌ ERRO: O peso atribuído para "${parametro}" deve ser um número válido.\n\nValor inserido: "${valorOriginal}"\nValor corrigido automaticamente para: 1`);
+                input.value = '1';
+                return false;
+            }
+            
+            // Verificar se está no intervalo correto
+            if (valor < 1 || valor > 5) {
+                alert(`❌ ERRO: O peso atribuído para "${parametro}" deve estar entre 1 e 5.\n\nValor inserido: ${valor}\nValor corrigido automaticamente para: 1`);
+                input.value = '1';
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Função para calcular QI e SI de todas as linhas
+        function calcularTodosQIs() {
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const valorMedidoInput = row.querySelector('td:nth-child(5) input[type="number"]');
+                const valorMedido = valorMedidoInput ? parseFloat(valorMedidoInput.value) : null;
+                const parametro = row.querySelector('td:first-child').textContent.trim();
+                const valorReferencia = valoresReferenciaCONAMA[parametro];
+                const qiCell = row.querySelector('td:nth-child(6)');
+                const siCell = row.querySelector('td:nth-child(7)');
+                
+                const qi = calcularQI(valorMedido, valorReferencia);
+                qiCell.textContent = qi;
+                
+                // Calcular SI
+                const pesoInput = row.querySelector('td:nth-child(3) input[type="number"]');
+                const pesoAtribuido = pesoInput ? parseFloat(pesoInput.value) : null;
+                const si = calcularSI(qi, pesoAtribuido);
+                siCell.textContent = si;
+            });
+        }
+
+        // Função para preencher valores iniciais
+        function preencherValoresIniciais() {
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const parametroCell = row.querySelector('td:first-child');
+                const parametro = parametroCell.textContent.trim();
+                
+                // Preencher valor de referência
+                const referenciaCell = row.querySelector('td:nth-child(2)');
+                if (valoresReferenciaCONAMA[parametro]) {
+                    referenciaCell.textContent = valoresReferenciaCONAMA[parametro];
+                }
+                
+                // Preencher peso atribuído
+                const pesoInput = row.querySelector('td:nth-child(3) input[type="number"]');
+                if (pesosAtribuidos[parametro]) {
+                    pesoInput.value = pesosAtribuidos[parametro];
+                }
+            });
+            
+            // Calcular pesos relativos iniciais
+            calculateRelativeWeight();
+            
+            // Calcular QIs iniciais
+            calcularTodosQIs();
+        }
+
+        // Função para demonstrar cálculo de QI, SI e IET com valores de exemplo
+        function demonstrarCalculoQI() {
+            // Exemplo: pH com valor medido de 8.5 e referência de 7
+            // QI = (8.5 / 7) * 10 = 12.14
+            // SI = 12.14 * 3 = 36.42
+            
+            // Exemplo: Turbidez com valor medido de 150 UNT e referência de 100 UNT
+            // QI = (150 / 100) * 10 = 15.00
+            // SI = 15.00 * 5 = 75.00
+            
+            console.log('Exemplos de cálculo de QI, SI e IET:');
+            const qi1 = calcularQI(8.5, '7');
+            const si1 = calcularSI(qi1, 3);
+            console.log('pH: valor medido 8.5, referência 7, peso 3');
+            console.log(`  QI = ${qi1}, SI = ${si1}`);
+            
+            const qi2 = calcularQI(150, '100 UNT');
+            const si2 = calcularSI(qi2, 5);
+            console.log('Turbidez: valor medido 150, referência 100 UNT, peso 5');
+            console.log(`  QI = ${qi2}, SI = ${si2}`);
+            
+            const qi3 = calcularQI(300, '250 mg/L');
+            const si3 = calcularSI(qi3, 2);
+            console.log('Cloreto: valor medido 300, referência 250 mg/L, peso 2');
+            console.log(`  QI = ${qi3}, SI = ${si3}`);
+            
+            // Exemplo de cálculo do IET
+            const resultadoIET = calcularIET();
+            const faixaInfo = determinarFaixaIET(resultadoIET.iet);
+            console.log(`IET atual: ${resultadoIET.iet} - ${faixaInfo.faixa}`);
+        }
+
+        // Função para inserir valores de exemplo para demonstração
+        function inserirValoresExemplo() {
+            const rows = document.querySelectorAll('tbody tr');
+            
+            // Exemplo 1: pH
+            const rowPH = Array.from(rows).find(row => row.querySelector('td:first-child').textContent.trim() === 'pH');
+            if (rowPH) {
+                const valorMedidoInput = rowPH.querySelector('td:nth-child(5) input[type="number"]');
+                if (valorMedidoInput) {
+                    valorMedidoInput.value = '8.5';
+                }
+            }
+            
+            // Exemplo 2: Turbidez
+            const rowTurbidez = Array.from(rows).find(row => row.querySelector('td:first-child').textContent.trim() === 'Turbidez');
+            if (rowTurbidez) {
+                const valorMedidoInput = rowTurbidez.querySelector('td:nth-child(5) input[type="number"]');
+                if (valorMedidoInput) {
+                    valorMedidoInput.value = '150';
+                }
+            }
+            
+            // Exemplo 3: Cloreto
+            const rowCloreto = Array.from(rows).find(row => row.querySelector('td:first-child').textContent.trim() === 'Cloreto');
+            if (rowCloreto) {
+                const valorMedidoInput = rowCloreto.querySelector('td:nth-child(5) input[type="number"]');
+                if (valorMedidoInput) {
+                    valorMedidoInput.value = '300';
+                }
+            }
+            
+            // Exemplo 4: OD (Oxigênio Dissolvido)
+            const rowOD = Array.from(rows).find(row => row.querySelector('td:first-child').textContent.trim() === 'OD');
+            if (rowOD) {
+                const valorMedidoInput = rowOD.querySelector('td:nth-child(5) input[type="number"]');
+                if (valorMedidoInput) {
+                    valorMedidoInput.value = '3.2';
+                }
+            }
+            
+            // Exemplo 5: DQO
+            const rowDQO = Array.from(rows).find(row => row.querySelector('td:first-child').textContent.trim() === 'DQO');
+            if (rowDQO) {
+                const valorMedidoInput = rowDQO.querySelector('td:nth-child(5) input[type="number"]');
+                if (valorMedidoInput) {
+                    valorMedidoInput.value = '15';
+                }
+            }
+            
+            // Recalcular todos os valores
+            calculateRelativeWeight();
+            
+            console.log('Valores de exemplo inseridos! Verifique os cálculos na tabela e o IET estimado.');
+        }
+
+        // Função para debug dos cálculos
+        function debugCalculos() {
+            console.log('=== DEBUG DOS CÁLCULOS ===');
+            
+            const rows = document.querySelectorAll('tbody tr');
+            console.log('Total de linhas encontradas:', rows.length);
+            
+            let totalWeight = 0;
+            rows.forEach((row, index) => {
+                const parametro = row.querySelector('td:first-child').textContent.trim();
+                const pesoInput = row.querySelector('td:nth-child(3) input[type="number"]');
+                const peso = pesoInput ? parseFloat(pesoInput.value) : 0;
+                const valorMedidoInput = row.querySelector('td:nth-child(5) input[type="number"]');
+                const valorMedido = valorMedidoInput ? parseFloat(valorMedidoInput.value) : null;
+                const valorReferencia = valoresReferenciaCONAMA[parametro];
+                
+                totalWeight += peso;
+                
+                console.log(`Linha ${index + 1} - ${parametro}:`);
+                console.log(`  Peso: ${peso}`);
+                console.log(`  Valor Medido: ${valorMedido}`);
+                console.log(`  Valor Referência: ${valorReferencia}`);
+                const qi = calcularQI(valorMedido, valorReferencia);
+                const si = calcularSI(qi, peso);
+                console.log(`  QI: ${qi}`);
+                console.log(`  SI: ${si}`);
+            });
+            
+            console.log('Peso total:', totalWeight);
+            console.log('=== FIM DEBUG ===');
+        }
+
+        // Função para validar todos os pesos de uma vez
+        function validarTodosPesos() {
+            const pesoInputs = document.querySelectorAll('td:nth-child(3) input[type="number"]');
+            let errosEncontrados = 0;
+            
+            pesoInputs.forEach(input => {
+                if (!validarPesoAtribuido(input)) {
+                    errosEncontrados++;
+                }
+            });
+            
+            if (errosEncontrados > 0) {
+                console.log(`Validação concluída: ${errosEncontrados} erro(s) corrigido(s) automaticamente.`);
+            } else {
+                console.log('Validação concluída: Todos os pesos estão corretos!');
+            }
+            
+            return errosEncontrados;
+        }
+
+        // Função para testar cálculos (chamada pelo botão)
+        function testarCalculos() {
+            console.log('=== TESTE MANUAL DOS CÁLCULOS ===');
+            alert('Verifique o console do navegador (F12) para ver os resultados dos cálculos!');
+            
+            // Validar todos os pesos primeiro
+            validarTodosPesos();
+            
+            calculateRelativeWeight();
+            debugCalculos();
+            
+            // Teste com valores específicos
+            console.log('=== TESTE COM VALORES ESPECÍFICOS ===');
+            console.log('Exemplo: pH com valor medido 8.5, referência 7, peso 3');
+            const qiTeste = calcularQI(8.5, '7');
+            const siTeste = calcularSI(qiTeste, 3);
+            console.log(`QI = ${qiTeste}, SI = ${siTeste}`);
+            console.log('Verificação: QI = (8.5 ÷ 7) × 10 = 12.14');
+            console.log('Verificação: SI = 12.14 × 3 = 36.42');
+        }
+
+        // Adicionar event listeners para os campos de peso e valor medido
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event listeners para campos de peso (coluna 3)
+            const pesoInputs = document.querySelectorAll('td:nth-child(3) input[type="number"]');
+            pesoInputs.forEach(input => {
+                input.addEventListener('input', calculateRelativeWeight);
+                input.addEventListener('blur', function() {
+                    validarPesoAtribuido(this);
+                    calculateRelativeWeight();
+                });
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        validarPesoAtribuido(this);
+                        calculateRelativeWeight();
+                        this.blur();
+                    }
+                });
+            });
+            
+            // Event listeners para campos de valor medido (coluna 5)
+            const valorMedidoInputs = document.querySelectorAll('td:nth-child(5) input[type="number"]');
+            valorMedidoInputs.forEach(input => {
+                input.addEventListener('input', calculateRelativeWeight);
+            });
+            
+            // Preencher valores iniciais
+            preencherValoresIniciais();
+            
+            // Demonstrar cálculo de QI no console
+            demonstrarCalculoQI();
+            
+            // Debug dos cálculos
+            debugCalculos();
+            
+            // Testar cálculos após um pequeno delay para garantir que tudo foi carregado
+            setTimeout(() => {
+                console.log('=== TESTE FINAL DOS CÁLCULOS ===');
+                calculateRelativeWeight();
+                console.log('Cálculos executados com sucesso!');
+            }, 100);
+        });
+    </script>
+</body>
+</html> 
